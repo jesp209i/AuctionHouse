@@ -52,7 +52,7 @@
                 @Html.DisplayFor(modelItem => item.BidPrice)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BidCustomName) 
+                <a href="@Url.Action("BidderDetails","Home",new { id = item.BidCustomPhone })">@Html.DisplayFor(modelItem => item.BidCustomName) </a>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.BidCustomPhone)
