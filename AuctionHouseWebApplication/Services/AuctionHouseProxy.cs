@@ -13,24 +13,15 @@ namespace AuctionHouseWebApplication.Services
 {
     public class AuctionHouseProxy
     {
-        const string baseUrl = "http://localhost:51542/api/auction/";
-
-        public async Task<IEnumerable<AuctionItemBidModel>> GetAuctionItemBidsAsync()
+        // Using wonderfull generics <3
+        public async Task<T> GetEntityAsync<T>(string url) where T : class
         {
-            var url = $"{baseUrl}";
             var client = new HttpClient();
             string json = await client.GetStringAsync(url);
-            return JsonConvert.DeserializeObject<List<AuctionItemBidModel>>(json);
-        }
-        public async Task<AuctionItemBidModel> GetAuctionItemBidByIdAsync(int id)
-        {
-            var url = $"{baseUrl}{id}";
-            var client = new HttpClient();
-            string json = await client.GetStringAsync(url);
-            return JsonConvert.DeserializeObject<AuctionItemBidModel>(json);
+            return JsonConvert.DeserializeObject<T>(json);
         }
 
-        public async Task<HttpResponseMessage> PostAuctionBidAsync(int id, Bid bid)
+        public async Task<HttpResponseMessage> PostAuctionBidAsync(int id, Bid bid, string baseUrl)
         {
             var cancellationToken = new CancellationToken();
             var url = $"{baseUrl}{id}/bid";
@@ -49,22 +40,6 @@ namespace AuctionHouseWebApplication.Services
                     }
                 }
             }
-        }
-
-        internal async Task<IEnumerable<Bidder>> GetBiddersAsync()
-        {
-            var url = $"{baseUrl}bidders";
-            var client = new HttpClient();
-            string json = await client.GetStringAsync(url);
-            return JsonConvert.DeserializeObject<List<Bidder>>(json);
-        }
-
-        internal async Task<IEnumerable<UserBid>> GetBidsByPhoneAsync(int phone)
-        {
-            var url = $"{baseUrl}bidders/{phone}";
-            var client = new HttpClient();
-            string json = await client.GetStringAsync(url);
-            return JsonConvert.DeserializeObject<List<UserBid>>(json);
         }
     }
 }

@@ -14,6 +14,7 @@ namespace AuctionHouseWebApplication.Controllers
     public class HomeController : Controller
     {
         private readonly AuctionHouseProxy auctionHouseProxy;
+        const string baseUrl = "http://localhost:51542/api/auction/";
 
         public HomeController(AuctionHouseProxy ahp)
         {
@@ -21,13 +22,13 @@ namespace AuctionHouseWebApplication.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var auctionList = await auctionHouseProxy.GetAuctionItemBidsAsync();
+            var auctionList = await auctionHouseProxy.GetEntityAsync<List<AuctionItemBidModel>>(baseUrl);
             return View(auctionList);
         }
         [HttpGet("auction/{id:int}/Bid")]
         public async Task<IActionResult> AuctionBid([FromRoute]int id)
         {
-            var auction = await auctionHouseProxy.GetAuctionItemBidByIdAsync(id);
+            var auction = await auctionHouseProxy.GetEntityAsync<AuctionItemBidModel>(baseUrl + id);
             if (auction.BidCustomPhone == null) auction.BidCustomPhone = 0;
             var auctionBidPage = new ItemBidPageModel
             {
@@ -55,9 +56,9 @@ namespace AuctionHouseWebApplication.Controllers
                 CustomName = sendbid.BidCustomName,
                 CustomPhone = sendbid.BidCustomPhone
             };
-            var auction = await auctionHouseProxy.GetAuctionItemBidByIdAsync(id);
+            var auction = await auctionHouseProxy.GetEntityAsync<AuctionItemBidModel>(baseUrl + id);
             HttpResponseMessage response = null;
-                response = await auctionHouseProxy.PostAuctionBidAsync(id, bid);
+                response = await auctionHouseProxy.PostAuctionBidAsync(id, bid, baseUrl);
             
             if (response.IsSuccessStatusCode)
             {
@@ -68,14 +69,15 @@ namespace AuctionHouseWebApplication.Controllers
         [Route("bidders")]
         public async Task<IActionResult> Bidders()
         {
-            var bidders = await auctionHouseProxy.GetBiddersAsync();
+            var bidders = await auctionHouseProxy.GetEntityAsync<List<Bidder>>(baseUrl+"bidders");
             return View(bidders);
         }
 
         [Route("bidder/{id:int}")]
         public async Task<IActionResult> BidderDetails([FromRoute] int id)
         {
-            var bids = await auctionHouseProxy.GetBidsByPhoneAsync(id);
+            var url = baseUrl + "bidders/" + id;
+            var bids = await auctionHouseProxy.GetEntityAsync<List<UserBid>>(url);
             return View(bids);
         }
 
